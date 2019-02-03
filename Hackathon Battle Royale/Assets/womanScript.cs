@@ -12,9 +12,15 @@ public class womanScript : MonoBehaviour
     Rigidbody body;
     bool colliding;
     Rigidbody collidingBody;
+    GameObject cube;
+    Rigidbody cubeBody;
+    bool thrown;
     // Start is called before the first frame update
     void Start()
     {
+        cube=GameObject.Find("Cube");
+        cubeBody=cube.GetComponent<Rigidbody>();
+        thrown = false;
         moveSpeed = 5f;
         turnSpeed = 180f;
         gravity = 0.5f;
@@ -25,23 +31,40 @@ public class womanScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!thrown)
+        {
+            print(cube.transform.localPosition);
+            cube.transform.localPosition =new Vector3(-100,0,0);
+        }
         move();
         turn();
         jump2();
         hit();
+        if (Input.GetMouseButtonDown(0))
+        {
+            applyForce(cubeBody);
+            thrown = true;
+        }
     }
     void hit()
     {
-        if (Input.GetMouseButton(0) && colliding)
+        if (Input.GetMouseButton(0) && collidingBody!=null && collidingBody.tag=="hitable")
         {
-            Vector3 direction = collidingBody.transform.position - transform.position;
-            collidingBody.AddForceAtPosition(100f * direction, transform.position, ForceMode.Impulse);
+            applyForce(collidingBody);
         }
+    }
+    void applyForce(Rigidbody body)
+    {
+        Vector3 direction = body.transform.position - transform.position;
+        body.AddForceAtPosition(30f * direction, transform.position, ForceMode.Impulse);
     }
     private void OnCollisionEnter(Collision collision)
     {
         colliding = true;
-        collidingBody = collision.gameObject.GetComponent<Rigidbody>();
+        if (collision.gameObject.name!="Plane")
+        {
+            collidingBody = collision.gameObject.GetComponent<Rigidbody>();
+        }
     }
     private void OnCollisionExit(Collision collision)
     {
@@ -53,7 +76,15 @@ public class womanScript : MonoBehaviour
     }
     void move()
     {
-        transform.Translate(new Vector3((-1)* Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime, /*jump() * Time.deltaTime*/0,0),Space.Self);
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            moveSpeed = 8f;
+        }
+        else
+        {
+            moveSpeed = 5f;
+        }
+        transform.Translate(new Vector3((-1)* Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime,0,0),Space.Self);
     }
     void jump2()
     {
