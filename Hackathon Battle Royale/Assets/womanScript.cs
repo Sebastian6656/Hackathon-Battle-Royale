@@ -11,6 +11,7 @@ public class womanScript : MonoBehaviour
     float turnSpeed;
     Rigidbody body;
     bool colliding;
+    Rigidbody collidingBody;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,10 +28,20 @@ public class womanScript : MonoBehaviour
         move();
         turn();
         jump2();
+        hit();
+    }
+    void hit()
+    {
+        if (Input.GetMouseButton(0) && colliding)
+        {
+            Vector3 direction = collidingBody.transform.position - transform.position;
+            collidingBody.AddForceAtPosition(100f * direction, transform.position, ForceMode.Impulse);
+        }
     }
     private void OnCollisionEnter(Collision collision)
     {
         colliding = true;
+        collidingBody = collision.gameObject.GetComponent<Rigidbody>();
     }
     private void OnCollisionExit(Collision collision)
     {
