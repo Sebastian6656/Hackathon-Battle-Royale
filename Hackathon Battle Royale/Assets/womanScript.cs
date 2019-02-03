@@ -9,7 +9,8 @@ public class womanScript : MonoBehaviour
     float jumpSpeed;
     float groundLevel;
     float turnSpeed;
-    Animator hitAnim;
+    Rigidbody body;
+    bool colliding;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,7 +18,7 @@ public class womanScript : MonoBehaviour
         turnSpeed = 180f;
         gravity = 0.5f;
         groundLevel = transform.position.y;
-        hitAnim = GetComponent<Animator>();
+        body= GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -25,11 +26,15 @@ public class womanScript : MonoBehaviour
     {
         move();
         turn();
-        if (Input.anyKeyDown)
-        {
-            hitAnim.SetTrigger("trigger");
-        }
-        //look();
+        jump2();
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        colliding = true;
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        colliding = false;
     }
     public void turn()
     {
@@ -37,7 +42,14 @@ public class womanScript : MonoBehaviour
     }
     void move()
     {
-        transform.Translate(new Vector3((-1)* Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime, jump() * Time.deltaTime,0),Space.Self);
+        transform.Translate(new Vector3((-1)* Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime, /*jump() * Time.deltaTime*/0,0),Space.Self);
+    }
+    void jump2()
+    {
+        if (Input.GetKey(KeyCode.Space) && colliding)
+        {
+            body.velocity = new Vector3(0, 8f, 0);
+        }
     }
     float jump()
     {
